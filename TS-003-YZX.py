@@ -6,12 +6,14 @@ def reward_function(params):
   speed = params['speed']
   steps = params['steps']
   progress = params['progress']
+  is_left_of_center = params['is_left_of_center']
+  heading = params['heading']
 
   # Intial reward
   reward = 20.0
 
   # Set the speed threshold based your action space
-  SPEED_THRESHOLD = 1.5
+  SPEED_THRESHOLD = 2.0
 
   # Total num of steps we want the car to finish the lap, it will vary depends on the track length
   TOTAL_NUM_STEPS = 300.0
@@ -54,6 +56,55 @@ def reward_function(params):
     reward += 12.5
   # Low reward if too close to the border or goes off the track
   else:
+    reward -= 10.0
+
+  # Penalize if car is not on the track and more to left
+  if not all_wheels_on_track and is_left_of_center:
+    reward -= 10.0
+  elif all_wheels_on_track and is_left_of_center:
+    reward += 5.0
+  elif all_wheels_on_track and not is_left_of_center:
+    reward += 7.5
+
+  # Speed run on straight line away from y-axis
+  if all_wheels_on_track and is_left_of_center and heading == 180:
+    reward += 7.5
+  elif all_wheels_on_track and is_left_of_center and heading == 180 and speed == SPEED_THRESHOLD:
+    reward += 12.5
+  else:
+    reward -= 10.0
+  
+  # Speed run on straight line towards from y-axis
+  if all_wheels_on_track and not is_left_of_center and heading == 0:
+    reward += 7.5
+  elif all_wheels_on_track and not is_left_of_center and heading == 0 and speed == SPEED_THRESHOLD:
+    reward += 12.5
+  else:
+    reward -= 10.0
+
+  U_TURN_SWEEP_CORNER = -45.0
+  U_TURN_EXIT_CORNER = -135.0
+
+  # Speed slower on u-turn 
+  if all_wheels_on_track and is_left_of_center and heading >= U_TURN_SWEEP_CORNER and speed == 1.0:
+    reward += 7.5
+  elif all_wheels_on_track and is_left_of_center and heading == U_TURN_SWEEP_CORNER and speed == 1.0:
+    reward += 12.5
+  else:
+    reward -= 10.0
+
+  # Mid transit
+  if all_wheels_on_track and distance_from_center <= marker_1 and heading == -90:
+    reward += 12.5
+  else:
+    reward -= 10.0
+
+  # Exiting u-turn
+  if all_wheels_on_track and not is_left_of_center and heading >= U_TURN_EXIT_CORNER and speed == 1.5:
+    reward += 7.5
+  elif all_wheels_on_track and not is_left_of_center and heading == U_TURN_EXIT_CORNER and speed == 1.5:
+    reward += 12.5
+  else: 
     reward -= 10.0
 
   # Penalize if car steer too much to prevent zigzag
