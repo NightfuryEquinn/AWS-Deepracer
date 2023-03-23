@@ -29,7 +29,7 @@ def reward_function(params):
   
   # Penalize if wheels off track and off track
   if all_wheels_on_track:
-    reward += 5.0
+    reward += 10.0
   else:
     reward -= 10.0
 
