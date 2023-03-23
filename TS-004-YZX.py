@@ -33,17 +33,17 @@ def reward_function(params):
   elif all_wheels_on_track and not is_off_track:
     reward += 10.0
   else:
-    reward -= 10,0
+    reward -= 10.0
 
   # Fix the best route and train to follow the route
   if closest_waypoint[1] in left_lane and left:
-    reward += 10,0
+    reward += 10.0
   elif closest_waypoint[1] in right_lane and not left:
-    reward += 10,0
+    reward += 10.0
   elif closest_waypoint[1] in center_lane and center_variance < 0.4:
-    reward += 10,0
+    reward += 10.0
   else:
-    reward -= 10,0
+    reward -= 10.0
 
   # Set the speed 
   if closest_waypoint[1] in sprint:
@@ -53,14 +53,14 @@ def reward_function(params):
       reward -= 10.0
   elif closest_waypoint[1] in fast:
     if params["speed"] == 2 :
-      reward += 10,0
+      reward += 10.0
     else:
-      reward -= 10,0
+      reward -= 10.0
   elif closest_waypoint[1] in slow:
     if params["speed"] == 1 :
-      reward += 10,0
+      reward += 10.0
     else:
-      reward -= 10,0
+      reward -= 10.0
 
   # Set the steering threshold (Max 20)
   ABS_STEERING_THRESHOLD = 20.0
