@@ -70,7 +70,7 @@ def reward_function(params):
   # Track Segments
   # Abbey / Starting Corner
   if (car_x > 0.7 and car_x < 2.4) and (car_y > 0.2 and car_y < 1.8):
-    if not on_left_side and (abs_steering > 15.0) and (speed > 2.0) and (distance_from_border >= 0.05):
+    if not on_left_side and (abs_steering > 15.0) and (speed > 2.0):
       reward += 10.0
     else:
       reward -= 10.0
@@ -99,7 +99,7 @@ def reward_function(params):
 
   # Becketts / The S-track
   if (car_x > 3.2 and car_x < 4.8) and (car_y > 2.3 and car_y < 5.1):
-    if not on_left_side and (speed > 2.0):
+    if (distance_from_center <= center_marker_close) and (speed > 2.0):
       reward += 10.0
     else:
       reward -= 10.0
