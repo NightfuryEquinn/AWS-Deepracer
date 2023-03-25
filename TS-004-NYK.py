@@ -33,13 +33,13 @@ def reward_function(params):
 
   # Penalize if the car goes off track
   if not all_wheels_on_track:
-    reward -= 10.0
+    reward -= 20.0
   # Penalize if the car goes too slow
   elif speed < SPEED_THRESHOLD:
-    reward -= 10.0
+    reward -= 20.0
   # High reward if the car stays on track and goes fast
   else:
-    reward += 10.0
+    reward += 20.0
 
   # Give higher reward if the car is closer to center line and vice versa
   if distance_from_center <= center_marker_close:
