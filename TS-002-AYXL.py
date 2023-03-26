@@ -15,10 +15,10 @@ def reward_function(params):
   reward = 20.0
 
   # Set the minimum speed threshold based your action space
-  SPEED_THRESHOLD = 1.5
+  SPEED_THRESHOLD = 1.0
 
   # Set the maximum steering threshold
-  ABS_STEERING_THRESHOLD = 25.0
+  ABS_STEERING_THRESHOLD = 30.0
 
   # Total num of steps we want the car to finish the lap, it will vary depends on the track length
   TOTAL_NUM_STEPS = 300.0
@@ -42,26 +42,26 @@ def reward_function(params):
     reward += 10.0
 
   # Give higher reward if the car is closer to center line and vice versa
-  if distance_from_center <= center_marker_close:
-    reward += 10.0
-  elif distance_from_center <= center_marker_avg:
-    reward += 5.0
-  elif distance_from_center <= center_marker_far:
-    reward += 2.5
+#  if distance_from_center <= center_marker_close:
+#    reward += 10.0
+#  elif distance_from_center <= center_marker_avg:
+#    reward += 5.0
+#  elif distance_from_center <= center_marker_far:
+#    reward += 2.5
   # Likely crashed / close to off track
-  else:
-    reward -= 10.0
+#  else:
+#    reward -= 10.0
 
   # Reward higher if the car stays inside the track borders
-  if distance_from_border >= 0.03:
+  if distance_from_border >= 0.05:
     reward += 10.0
   # Low reward if too close to the border or goes off the track
   else:
     reward -= 10.0
 
   # Penalize if car steer too much to prevent zigzag
-  if abs_steering > ABS_STEERING_THRESHOLD:
-    reward /= 2.0
+#  if abs_steering > ABS_STEERING_THRESHOLD:
+#    reward /= 2.0
 
   # Give additional reward if the car pass every 100 steps faster than expected
   if (steps % 100.0) == 0 and progress > (steps / TOTAL_NUM_STEPS) * 100.0 :
@@ -70,70 +70,65 @@ def reward_function(params):
   # Track Segments
   # Abbey / Starting Corner
   if (car_x > 0.7 and car_x < 2.4) and (car_y > 0.2 and car_y < 1.8):
-    if not on_left_side and (abs_steering > 15.0) and (speed > 2.0):
+    if not on_left_side and (abs_steering > 15.0) and (speed > SPEED_THRESHOLD):
       reward += 10.0
     else:
       reward -= 10.0
 
   # Hamilton Straight / Starting Sprint
   if (car_x > 0.3 and car_x < 2.0) and (car_y > 1.8 and car_y < 2.5):
-    if not on_left_side and (distance_from_border >= 0.05) and (speed > 2.0):
-      reward += 10.0
+    if not on_left_side and (distance_from_border >= 0.05) and (speed > 1.50) and (abs_steering < 5.0):
+      reward += 12.5
     else:
       reward -= 10.0
 
   # Luffield Corner / More than 90-degree Corner
   # Approaching
   if (car_x > 0.4 and car_x < 1.8) and (car_y > 3.6 and car_y < 5.2):
-    if not on_left_side and (speed > SPEED_THRESHOLD):
-      reward += 10.0
+    if not on_left_side and (distance_from_center <= center_marker_close) and (speed > 0.5):
+      reward += 12.5
     else:
       reward -= 10.0
 
   # Exiting
   if (car_x > 1.8 and car_x < 3.0) and (car_y > 3.7 and car_y < 5.2):
-    if not on_left_side and (distance_from_border >= 0.05) and (speed > 2.0):
+    if not on_left_side and (speed > 1.30) and (abs_steering < 10.0):
       reward += 10.0
     else:
       reward -= 10.0
 
   # Becketts / The S-track
-  if (car_x > 3.2 and car_x < 4.8) and (car_y > 2.3 and car_y < 5.1):
-    if (distance_from_center <= center_marker_close) and (speed > 2.0):
-      reward += 10.0
+  if (car_x > 3.2 and car_x < 6.4) and (car_y > 2.2 and car_y < 5.3):
+    if (abs_steering < 2.0) and (speed > 1.85):
+      reward += 12.5
     else:
       reward -= 10.0
 
   # Transitioning
-  if (car_x > 4.8 and car_x < 5.8) and (car_y > 2.2 and car_y < 3.6):
-    if not on_left_side and (distance_from_border >= 0.05) and (speed > 2.0):
-      reward += 10.0
-    else:
-      reward -= 10.0
+#  if (car_x > 4.8 and car_x < 5.8) and (car_y > 2.2 and car_y < 3.6):
+#    if not on_left_side and (distance_from_center <=   center_marker_close) and (speed > 1.25):
+#      reward += 12.5
+#    else:
+#      reward -= 10.0
 
   # Vale / Entering U-turn
-  if (car_x > 5.8 and car_x < 7.8) and (car_y > 2.0 and car_y < 3.4):
-    if on_left_side and (abs_steering > 22.5) and (speed > SPEED_THRESHOLD):
-      reward += 10.0
+  if (car_x > 6.2 and car_x < 7.8) and (car_y > 2.0 and car_y < 3.4):
+    if (abs_steering > 22.5) and (speed > SPEED_THRESHOLD) and (distance_from_border >= 0.05):
+      reward += 12.5
     else:
       reward -= 10.0
 
   # Club / Exiting U-turn
-  if (car_x > 6.2 and car_x < 7.8) and (car_y > 0.3 and car_y < 2.0):
-    if not on_left_side and (speed > 2.0) and (distance_from_border >= 0.05):
+  if (car_x > 6.2 and car_x < 7.8) and (car_y > 0.2 and car_y < 2.0):
+    if (speed > 1.25) and (distance_from_border >= 0.05) and (abs_steering > 15.0):
       reward += 10.0
     else:
       reward -= 10.0
 
   # Wellington Straight / Sprint to Finish Line
-  if (car_x > 2.2 and car_x < 6.1) and (car_y > 0.35 and car_y < 1.6):
-    if not on_left_side and (distance_from_border >= 0.05) and (speed > 2.0):
-      reward += 10.0
-    else:
-      reward -= 10.0
-    
-    if abs_steering < 20.0:
-      reward += 10.0
+  if (car_x > 2.2 and car_x < 6.3) and (car_y > 0.2 and car_y < 1.8):
+    if (distance_from_border >= 0.05) and (speed > 1.85) and  (abs_steering < 2.0):
+      reward += 12.5
     else:
       reward -= 10.0
 
